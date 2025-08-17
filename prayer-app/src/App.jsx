@@ -1,25 +1,60 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [times, setTimes] = useState(null);
+  const [city, setCity] = useState("Sarajevo");
+  const [prayerTimes, setPrayerTimes] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://api.aladhan.com/v1/timingsByCity?city=Sarajevo&country=Bosnia%20and%20Herzegovina&method=13")
-      .then(res => res.json())
-      .then(data => setTimes(data.data.timings));
-  }, []);
+    async function fetchPrayerTimes() {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Bosnia%20and%20Herzegovina&method=2`
+        );
+        const data = await res.json();
+        setPrayerTimes(data.data.timings);
+      } catch (error) {
+        console.error("Error fetching prayer times:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPrayerTimes();
+  }, [city]);
 
   return (
-    <div>
-      <h1>Prayer Times - Sarajevo</h1>
-      {times ? (
-        <ul>
-          {Object.entries(times).map(([name, time]) => (
-            <li key={name}>{name}: {time}</li>
-          ))}
-        </ul>
+    <div style={{ fontFamily: "Arial", padding: "20px" }}>
+      <h1>Prayer Times App</h1>
+
+      {/* Dropdown for selecting city */}
+      <label>
+        Choose a city:{" "}
+        <select value={city} onChange={(e) => setCity(e.target.value)}>
+          <option value="Sarajevo">Sarajevo</option>
+          <option value="Zenica">Zenica</option>
+          <option value="Tuzla">Tuzla</option>
+          <option value="Mostar">Mostar</option>
+          <option value="Banja Luka">Banja Luka</option>
+        </select>
+      </label>
+
+      <hr />
+
+      {loading ? (
+        <p>Loading prayer times for {city}...</p>
       ) : (
-        <p>Loading prayer times...</p>
+        <div>
+          <h2>Prayer Times in {city}</h2>
+          <ul>
+            {Object.entries(prayerTimes).map(([name, time]) => (
+              <li key={name}>
+                <strong>{name}:</strong> {time}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
