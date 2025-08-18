@@ -44,21 +44,20 @@ export default function App() {
 
       {/* City Selector */}
       <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
-       <FormControl fullWidth>
-        <InputLabel id="city-label">City</InputLabel>
-        <Select
-          labelId="city-label"
-          value={city}
-          label="City"   // ✅ this fixes the overlap
-          onChange={(e) => setCity(e.target.value)}
-        >
-        <MenuItem value="Sarajevo">Sarajevo</MenuItem>
-        <MenuItem value="Mostar">Mostar</MenuItem>
-        <MenuItem value="Tuzla">Tuzla</MenuItem>
-        <MenuItem value="Zenica">Zenica</MenuItem>
-        </Select>
-       </FormControl>
-
+        <FormControl fullWidth>
+          <InputLabel id="city-label">City</InputLabel>
+          <Select
+            labelId="city-label"
+            value={city}
+            label="City" // ✅ this fixes the overlap
+            onChange={(e) => setCity(e.target.value)}
+          >
+            <MenuItem value="Sarajevo">Sarajevo</MenuItem>
+            <MenuItem value="Mostar">Mostar</MenuItem>
+            <MenuItem value="Tuzla">Tuzla</MenuItem>
+            <MenuItem value="Zenica">Zenica</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Prayer Times */}
