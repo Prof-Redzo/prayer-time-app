@@ -1,87 +1,91 @@
-import { useState, useEffect } from "react";
+// src/App.jsx
+import { useEffect, useState } from "react";
+import { getPrayerTimes } from "./api/api"; // 👈 import from api.js
 import {
   Container,
   Typography,
+  CircularProgress,
   Box,
-  FormControl,
-  InputLabel,
   Select,
   MenuItem,
-  Card,
-  CardContent,
+  InputLabel,
+  FormControl,
+  Paper,
 } from "@mui/material";
 
-function App() {
-  const [city, setCity] = useState("Sarajevo");
+export default function App() {
+  const [city, setCity] = useState("Sarajevo"); // default city
   const [prayerTimes, setPrayerTimes] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch whenever city changes
   useEffect(() => {
-    async function fetchPrayerTimes() {
+    async function fetchData() {
+      setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Bosnia%20and%20Herzegovina&method=13`
-        );
-        const data = await response.json();
-        setPrayerTimes(data.data.timings);
-      } catch (error) {
-        console.error("Error fetching prayer times:", error);
+        const times = await getPrayerTimes(city);
+        setPrayerTimes(times);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchPrayerTimes();
+
+    fetchData();
   }, [city]);
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 5 }}>
-      {/* Header */}
-      <Typography variant="h4" align="center" gutterBottom>
-        🕌 Prayer Times App
+    <Container sx={{ mt: 5 }}>
+      {/* Heading */}
+      <Typography variant="h4" gutterBottom align="center">
+        Prayer Times - {city}
       </Typography>
 
-      {/* City Selection */}
-      <Box mb={3}>
-      <FormControl fullWidth>
-      <InputLabel id="city-label">City</InputLabel>
+      {/* City Selector */}
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+       <FormControl fullWidth>
+        <InputLabel id="city-label">City</InputLabel>
         <Select
           labelId="city-label"
           value={city}
           label="City"   // ✅ this fixes the overlap
           onChange={(e) => setCity(e.target.value)}
         >
-             <MenuItem value="Sarajevo">Sarajevo</MenuItem>
-             <MenuItem value="Mostar">Mostar</MenuItem>
-             <MenuItem value="Tuzla">Tuzla</MenuItem>
-             <MenuItem value="Zenica">Zenica</MenuItem>
+        <MenuItem value="Sarajevo">Sarajevo</MenuItem>
+        <MenuItem value="Mostar">Mostar</MenuItem>
+        <MenuItem value="Tuzla">Tuzla</MenuItem>
+        <MenuItem value="Zenica">Zenica</MenuItem>
         </Select>
-     </FormControl>
+       </FormControl>
+
       </Box>
 
-      {/* Prayer Times Box */}
-      {prayerTimes && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Prayer Times for {city}
-            </Typography>
-
-            {/* Each time in separate line */}
-            <Typography>Fajr: {prayerTimes.Fajr}</Typography>
-            <Typography>Dhuhr: {prayerTimes.Dhuhr}</Typography>
-            <Typography>Asr: {prayerTimes.Asr}</Typography>
-            <Typography>Maghrib: {prayerTimes.Maghrib}</Typography>
-            <Typography>Isha: {prayerTimes.Isha}</Typography>
-            <Typography>Sunrise: {prayerTimes.Sunrise}</Typography>
-            <Typography>Sunset: {prayerTimes.Sunset}</Typography>
-
-            {/* Fixed layout for First Third / Last Third */}
-            <Box mt={2}>
-              <Typography>First Third: {prayerTimes.Firstthird}</Typography>
-              <Typography>Last Third: {prayerTimes.Lastthird}</Typography>
-            </Box>
-          </CardContent>
-        </Card>
+      {/* Prayer Times */}
+      {loading ? (
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box sx={{ display: "grid", gap: 2 }}>
+          {Object.entries(prayerTimes).map(([name, time]) => (
+            <Paper
+              key={name}
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
+            >
+              <Typography variant="h6">{name}</Typography>
+              <Typography variant="h6">{time}</Typography>
+            </Paper>
+          ))}
+        </Box>
       )}
     </Container>
   );
 }
-
-export default App;
