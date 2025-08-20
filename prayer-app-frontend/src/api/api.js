@@ -1,22 +1,16 @@
-const BASE_URL = "https://api.aladhan.com/v1";
+import axios from "axios";
+
+// Base URL of your backend (make sure backend is running on this port)
+const API_BASE = "http://localhost:5000/api";
 
 /**
- * Fetch prayer times for a given city & country
- * @param {string} city - City name (e.g., "Sarajevo")
- * @param {string} country - Country name (e.g., "Bosnia and Herzegovina")
- * @returns {Promise<Object>} prayer times
+ * Fetch prayer times for a given city
+ * @param {string} city - The city name (e.g., "Sarajevo")
+ * @returns {Promise<Object>} - Prayer times data
  */
 export async function getPrayerTimes(city) {
-  const response = await fetch(
-    `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Bosnia&method=2`
+  const { data } = await axios.get(
+    `${API_BASE}/prayertimes/${encodeURIComponent(city)}`
   );
-  const data = await response.json();
-
-  return {
-    timings: data.data.timings,
-    date: {
-      gregorian: data.data.date.gregorian.date,
-      hijri: `${data.data.date.hijri.day} ${data.data.date.hijri.month.en} ${data.data.date.hijri.year}`,
-    },
-  };
+  return data; // Same structure as the backend response
 }
